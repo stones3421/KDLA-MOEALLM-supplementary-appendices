@@ -1,0 +1,838 @@
+\documentclass[11pt]{article}
+
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{placeins}
+\usepackage[hidelinks]{hyperref}
+
+\title{Supplementary Appendices for the Integrated Freight Train Line Planning and Timetabling and Experimental Analysis}
+\author{}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\noindent This document provides the supplementary material for the formulation and experimental analysis. It includes the complete linearization details, exact-solver validation data, VFM event evidence, corridor and OD data, statistical results, computational results, and notation and units.
+
+\appendix
+
+\section{Complete Linearization Details}
+\label{App:Linearization}
+
+This appendix presents the auxiliary-variable reformulation used to obtain a mixed-integer linear model. The purpose is to eliminate products of decision variables and to make the connectivity, loading, unloading, and delivery constraints explicit.
+
+\subsection{Path--Station Service Indicator}
+\label{App:PathStation}
+
+Whether a candidate path serves a physical station is known before optimization. We therefore define the precomputed parameter
+\begin{equation}
+\zeta_{r,k}=
+\begin{cases}
+1, & \text{if path } r \text{ serves physical station } k, \\
+0, & \text{otherwise}.
+\end{cases}
+\label{AppEq:zeta}
+\end{equation}
+Since $\zeta_{r,k}$ is a parameter, no binary variable or bilinear constraint is required for path--station service.
+
+\subsection{VFM Coupling and Decoupling}
+\label{App:VFM}
+
+Let $q_{r,k,t}^{\mathrm{dec}}$ and $q_{r,k,t}^{\mathrm{cp}}$ denote the numbers of decoupled and coupled train units. Their operation indicators are linked by
+\begin{equation}
+q_{r,k,t}^{\mathrm{dec}}
+\leq
+M_q \delta_{r,k,t}^{\mathrm{dec}},
+\qquad
+q_{r,k,t}^{\mathrm{cp}}
+\leq
+M_q \delta_{r,k,t}^{\mathrm{cp}},
+\label{AppEq:VFMbigM}
+\end{equation}
+The indicator is also bounded from below so that a positive indicator cannot be selected when no units are operated:
+\begin{equation}
+q_{r,k,t}^{\mathrm{dec}} \geq \delta_{r,k,t}^{\mathrm{dec}},
+\qquad
+q_{r,k,t}^{\mathrm{cp}} \geq \delta_{r,k,t}^{\mathrm{cp}}.
+\label{AppEq:VFMlower}
+\end{equation}
+and
+\begin{equation}
+\delta_{r,k,t}^{\mathrm{dec}}
++
+\delta_{r,k,t}^{\mathrm{cp}}
+\leq 1.
+\label{AppEq:VFMexclusive}
+\end{equation}
+The constant is set to
+\begin{equation}
+M_q=\max_{p\in\mathcal{P}}\theta_p.
+\label{AppEq:Mq}
+\end{equation}
+Constraint \eqref{AppEq:VFMbigM} activates the corresponding operation indicator when units are decoupled or coupled. Constraint \eqref{AppEq:VFMexclusive} prevents simultaneous coupling and decoupling at the same station and time.
+
+\subsection{Connectivity Linearization}
+\label{App:Connectivity}
+
+Let $j_{k,d}^{t}$ be a binary variable that equals 1 when at least one selected path connects physical stations $k$ and $d$ at time $t$. The connectivity condition is represented by
+\begin{equation}
+j_{k,d}^{t}
+\leq
+\sum_{r\in\mathcal{R}}
+\nu_{r,k,d}^{t} y_r,
+\qquad
+\forall k,d\in\mathcal{K},
+\forall t\in\mathcal{T},
+\label{AppEq:jUpper}
+\end{equation}
+and
+\begin{equation}
+j_{k,d}^{t}
+\geq
+\nu_{r,k,d}^{t} y_r,
+\qquad
+\forall r\in\mathcal{R},
+\forall k,d\in\mathcal{K},
+\forall t\in\mathcal{T}.
+\label{AppEq:jLower}
+\end{equation}
+Constraints \eqref{AppEq:jUpper} and \eqref{AppEq:jLower} replace the product of station-service indicators in the original formulation.
+
+\subsection{OD Loading and Unloading}
+\label{App:LoadingUnloading}
+
+The OD-specific loading and unloading volumes are bounded by the total OD demand and the path--station service indicator:
+\begin{equation}
+\epsilon_{r,k,t}^{o,d}
+\leq
+Q_{o,d}\zeta_{r,k},
+\qquad
+\forall r\in\mathcal{R},
+\forall (o,d)\in\mathcal{OD},
+\forall k\in\mathcal{K},
+\forall t\in\mathcal{T},
+\label{AppEq:loadingLink}
+\end{equation}
+\begin{equation}
+\phi_{r,k,t}^{o,d}
+\leq
+Q_{o,d}\zeta_{r,k},
+\qquad
+\forall r\in\mathcal{R},
+\forall (o,d)\in\mathcal{OD},
+\forall k\in\mathcal{K},
+\forall t\in\mathcal{T}.
+\label{AppEq:unloadingLink}
+\end{equation}
+Because $Q_{o,d}$ and $\zeta_{r,k}$ are parameters, \eqref{AppEq:loadingLink} and \eqref{AppEq:unloadingLink} are linear.
+
+The total loading and unloading volumes on path $r$ at station $k$ are
+\begin{equation}
+\epsilon_{r,k}
+=
+\sum_{(o,d)\in\mathcal{OD}}
+\sum_{t\in\mathcal{T}}
+\epsilon_{r,k,t}^{o,d},
+\qquad
+\forall r\in\mathcal{R},
+\forall k\in\mathcal{K},
+\label{AppEq:loadingTotal}
+\end{equation}
+\begin{equation}
+\phi_{r,k}
+=
+\sum_{(o,d)\in\mathcal{OD}}
+\sum_{t\in\mathcal{T}}
+\phi_{r,k,t}^{o,d},
+\qquad
+\forall r\in\mathcal{R},
+\forall k\in\mathcal{K}.
+\label{AppEq:unloadingTotal}
+\end{equation}
+The model assumes that cargo remains on the path on which it is loaded. Therefore, for each path and OD pair, the total loaded cargo equals the total unloaded cargo:
+\begin{equation}
+\sum_{t\in\mathcal{T}} \epsilon_{r,o,t}^{o,d}
+=
+\sum_{t\in\mathcal{T}} \phi_{r,d,t}^{o,d},
+\qquad
+\forall r\in\mathcal{R},
+\forall (o,d)\in\mathcal{OD}.
+\label{AppEq:cargoConservation}
+\end{equation}
+
+Cargo for OD pair $(o,d)$ can be loaded only at origin $o$ and unloaded only at destination $d$:
+\begin{equation}
+\epsilon_{r,k,t}^{o,d}=0,
+\qquad
+\forall r\in\mathcal{R},
+\forall (o,d)\in\mathcal{OD},
+\forall k\in\mathcal{K},
+k\neq o,
+\forall t\in\mathcal{T},
+\label{AppEq:loadingOrigin}
+\end{equation}
+\begin{equation}
+\phi_{r,k,t}^{o,d}=0,
+\qquad
+\forall r\in\mathcal{R},
+\forall (o,d)\in\mathcal{OD},
+\forall k\in\mathcal{K},
+k\neq d,
+\forall t\in\mathcal{T}.
+\label{AppEq:unloadingDestination}
+\end{equation}
+
+\subsection{Delivery and Lateness}
+\label{App:Delivery}
+
+The delivered volume is linked to OD-specific unloading:
+\begin{equation}
+h_{o,d,t}
+=
+\sum_{r\in\mathcal{R}}
+\phi_{r,d,t}^{o,d},
+\qquad
+\forall (o,d)\in\mathcal{OD},
+\forall t\in\mathcal{T}.
+\label{AppEq:deliveryLink}
+\end{equation}
+The delivered volume satisfies
+\begin{equation}
+\sum_{t\in\mathcal{T}}h_{o,d,t}=Q_{o,d},
+\qquad
+\forall (o,d)\in\mathcal{OD}.
+\label{AppEq:deliveryConservation}
+\end{equation}
+The average delivery time is
+\begin{equation}
+C_{o,d}^{\mathrm{avg}}
+=
+\frac{
+\sum_{t\in\mathcal{T}}t h_{o,d,t}
+}{
+Q_{o,d}
+},
+\qquad
+\forall (o,d)\in\mathcal{OD}.
+\label{AppEq:avgDelivery}
+\end{equation}
+The lateness variable satisfies
+\begin{equation}
+L_{o,d}
+\geq
+C_{o,d}^{\mathrm{avg}}-D_{o,d},
+\qquad
+L_{o,d}\geq 0,
+\qquad
+\forall (o,d)\in\mathcal{OD}.
+\label{AppEq:lateness}
+\end{equation}
+
+\clearpage
+\subsection{Summary of Linearization Terms}
+\label{App:LinearizationSummary}
+
+\begin{table}[!htbp]
+\centering
+\small
+\caption{Bilinear or conditional terms and their linear reformulations.}
+\label{AppTab:linearization}
+\begin{tabular}{p{0.30\linewidth}p{0.60\linewidth}}
+\toprule
+\textbf{Original term} & \textbf{Linear reformulation} \\
+\midrule
+Path--station service & Precomputed parameter $\zeta_{r,k}$ \\
+Coupling and decoupling activation & Big-M constraints \eqref{AppEq:VFMbigM}--\eqref{AppEq:VFMexclusive} \\
+Connectivity product & Bounds \eqref{AppEq:jUpper} and \eqref{AppEq:jLower} \\
+OD loading and unloading & Bounds \eqref{AppEq:loadingLink} and \eqref{AppEq:unloadingLink} \\
+Delivery and lateness & Equations \eqref{AppEq:deliveryLink}--\eqref{AppEq:lateness} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Exact-Solver Validation Data}
+\label{App:ExactSolver}
+
+This appendix reports the small-instance validation used to verify the formulation. The validation focuses on solver feasibility, objective consistency, and satisfaction of the major constraint groups.
+
+\subsection{Validation Purpose}
+The small-instance exact-solver validation is designed to verify the mathematical formulation rather than to evaluate corridor-scale performance. It checks whether the exact solver can obtain a feasible solution, whether the objective values are correctly evaluated, and whether the proposed formulation enforces the main constraint groups. The KDLA-MOEALLM result is then compared with the exact-solver result on the same instance. The validation addresses four questions. First, can the formulation be solved to feasibility by an exact solver? Second, are the objective values of KDLA-MOEALLM consistent with a high-quality reference solution? Third, are all major constraint groups satisfied by both methods? Fourth, are the observed differences small enough to support the correctness of the implementation?
+
+\subsection{Small-Instance Design}
+
+The small instance is constructed to retain the core coupling between path selection, formation assignment, timetable feasibility, VFM operations, and freight flow. It is small enough for the exact solver and still includes the main constraint groups of the full formulation.
+
+\begin{table}[!htbp]
+	\centering
+	\small
+	\caption{Design of the small-instance validation.}
+\label{AppTab:exactDesign}
+	\begin{tabular}{ll}
+		\toprule
+		\textbf{Item} & \textbf{Setting} \\
+		\midrule
+		Physical stations & 6 \\
+		VFM-capable stations & 2 \\
+		Candidate paths & 36 \\
+		Formation types & 3 \\
+		Demand scenarios & 3 \\
+		Planning horizon & 12 h \\
+		Time step & 1 min \\
+		Priority classes & 3 \\
+		\bottomrule
+	\end{tabular}
+\end{table}
+
+\subsection{Exact-Solver Settings}
+
+The station sequence is $s_1$--$s_6$, and VFM operations are permitted at $s_2$ and $s_4$. The 36 candidate paths comprise 18 upstream and 18 downstream paths. The three formation types contain 3, 4, and 5 train units. The demand scenarios represent low, medium, and high demand intensities, and the three priority classes correspond to express, standard, and low-priority freight. The exact solver is applied with a finite time limit and a small optimality-gap tolerance. Because the problem is bi-objective, the solver is run with the $\varepsilon$-constraint method. The reported exact-solver solution is the knee-point solution of the resulting small Pareto front.
+
+\begin{table}[!htbp]
+	\centering
+	\small
+	\caption{Settings of the small-instance exact-solver validation.}
+\label{AppTab:exactSettings}
+	\begin{tabular}{ll}
+		\toprule
+		\textbf{Item} & \textbf{Value} \\
+		\midrule
+		Solver & Gurobi \\
+		Solver version & 11.0.1 \\
+		Time limit & 3600 s \\
+		Optimality gap tolerance & 0.50\% \\
+		Hardware & Intel Xeon Gold 6248R, 256 GB RAM \\
+		Gurobi threads & 8 \\
+		Epsilon-constraint points & 11 \\
+		Independent KDLA-MOEALLM runs & 10 \\
+		Number of physical stations & 6 \\
+		Number of candidate paths & 36 \\
+		Number of formation types & 3 \\
+		Planning horizon & 12 h \\
+		\bottomrule
+	\end{tabular}
+\end{table}
+
+\subsection{Validation Criteria}
+
+The validation reports solver status, objective values, optimality gap, constraint feasibility, and the comparison with KDLA-MOEALLM. The following constraints are checked explicitly:
+
+\begin{itemize}
+	\item Path consistency and segment activation.
+	\item VFM unit conservation and station inventory balance.
+	\item Arrival-departure matching and turnaround feasibility.
+	\item Formation length and payload capacity.
+	\item Freight-flow conservation and backlog balance.
+	\item Delivery and lateness constraints.
+\end{itemize}
+
+\begin{table*}[!htbp]
+	\centering
+	\small
+	\caption{Constraint-verification results on the small instance. Violations are reported separately for the exact solver and KDLA-MOEALLM. The numerical feasibility tolerance is $10^{-6}$ in the corresponding unit.}
+	\label{AppTab:constraintCheck}
+	\begin{tabular}{p{0.28\textwidth}p{0.12\textwidth}cc}
+		\toprule
+		\textbf{Constraint group} & \textbf{Unit} & \textbf{Exact solver} & \textbf{KDLA-MOEALLM} \\
+		\midrule
+		Path consistency & Count & 0 & 0 \\
+		Formation continuity & Count & 0 & 0 \\
+		VFM unit conservation & Train unit & $<10^{-6}$ & $<10^{-6}$ \\
+		Station inventory balance & Train unit & $<10^{-6}$ & $<10^{-6}$ \\
+		Arrival-departure matching & Train unit & $<10^{-6}$ & $<10^{-6}$ \\
+		Formation length & Train unit & $<10^{-6}$ & $<10^{-6}$ \\
+		Payload capacity & Ton & $<10^{-6}$ & $<10^{-6}$ \\
+		Freight-flow conservation & Ton & $<10^{-6}$ & $<10^{-6}$ \\
+		Backlog balance & Ton & $<10^{-6}$ & $<10^{-6}$ \\
+		Delivery conservation & Ton & $<10^{-6}$ & $<10^{-6}$ \\
+		Lateness & Minute & $<10^{-6}$ & $<10^{-6}$ \\
+		\bottomrule
+	\end{tabular}
+\end{table*}
+
+Three metrics are used to compare the two methods. The first is the relative gap of each objective with respect to the exact-solver solution. The second is the average relative gap over the two objectives. The third is the feasibility status of the resulting solution.
+
+\subsection{Validation Metrics}
+
+
+Let $Z_j^{\mathrm{ex}}$ and $Z_j^{\mathrm{alg}}$ denote the $j$-th objective value obtained by the exact solver and KDLA-MOEALLM. The relative objective gap is
+\begin{equation}
+	G_j =
+	\frac{
+		|Z_j^{\mathrm{alg}}-Z_j^{\mathrm{ex}}|
+	}{
+		|Z_j^{\mathrm{ex}}|
+	}
+	\times 100\%,
+	\qquad
+	j=1,2.
+\label{AppEq:objectiveGap}
+\end{equation}
+The average relative gap is
+\begin{equation}
+	\bar{G}
+	=
+	\frac{G_1+G_2}{2}.
+\label{AppEq:averageGap}
+\end{equation}
+
+The exact solver obtained a feasible knee-point solution with $Z_1=12{,}480$ ton$\cdot$min and $Z_2=3{,}750$ cost units. KDLA-MOEALLM obtained $Z_1=12{,}736$ ton$\cdot$min and $Z_2=3{,}814$ cost units. The relative gaps with respect to the exact-solver solution are 2.05\% for $Z_1$ and 1.71\% for $Z_2$. The average relative gap is 1.88\%. The reported results correspond to the medium-demand scenario. The same evaluation procedure is applied to the low- and high-demand scenarios to assess the robustness of the model.
+
+\subsection{Validation Results}
+
+\begin{table}[!htbp]
+	\centering
+	\small
+	\caption{Small-instance exact-solver validation results.}
+\label{AppTab:exactResults}
+	\begin{tabular}{llccccc}
+		\toprule
+		\textbf{Method} & \textbf{Scenario} & \textbf{$Z_1$} & \textbf{$Z_2$} & \textbf{Relative gap} & \textbf{MIP gap} & \textbf{Feasible} \\
+		\midrule
+		Exact solver & Medium & 12{,}480 & 3{,}750 & -- & $\leq 0.50$\% & Yes \\
+		KDLA-MOEALLM & Medium & 12{,}736 & 3{,}814 & 1.88\% & -- & Yes \\
+		\bottomrule
+	\end{tabular}
+\end{table}
+
+\subsection{Interpretation}
+\begin{table}[!htbp]
+	\centering
+	\small
+	\caption{Computational comparison on the small instance.}
+\label{AppTab:runtime}
+	\begin{tabular}{lcc}
+		\toprule
+		\textbf{Method} & \textbf{Runtime} & \textbf{Result} \\
+		\midrule
+		Exact solver & 812.4 s & Knee-point solution \\
+		KDLA-MOEALLM & 47.6 s & Knee-point solution selected by the same criterion \\
+		\bottomrule
+	\end{tabular}
+\end{table}
+
+
+The exact-solver runtime is the total time of the $\varepsilon$-constraint sweep, while the KDLA-MOEALLM runtime is the average wall-clock time over ten independent runs. Both methods use the same hardware and the same knee-point selection criterion. The exact-solver result provides a reference for the small instance. KDLA-MOEALLM reaches the same feasible region and obtains objective values close to the exact-solver solution. The relative differences are 2.05\% for $Z_1$ and 1.71\% for $Z_2$. These results support the correctness of the formulation and the implementation of the evolutionary search. A large difference would instead indicate a modeling error, a constraint-implementation error, or an algorithmic convergence problem. All checked constraints are satisfied by both solutions, including path consistency, VFM unit conservation, station inventory balance, arrival-departure matching, formation capacity, freight-flow conservation, and deadline constraints. The small-instance experiment therefore provides a reference validation before the model is applied to the corridor-scale case.
+
+
+\subsection{Limitations of the Small-Instance Validation}
+
+The small-instance validation does not establish scalability or replace the corridor-scale experiments. Its purpose is to verify that the model can be solved exactly on a tractable instance and that KDLA-MOEALLM can reproduce a near-optimal feasible solution. Performance on larger instances is evaluated separately in the corridor case study.
+
+\section{VFM Event Sequence Example}
+\label{App:VFMExample}
+
+Table~\ref{AppTab:vfmEvent} reports a representative event sequence for VFM operations at one station. The sequence shows arrival, decoupling, holding, matching, coupling, and departure. All symbols follow the notation defined in the formulation, so the event sequence can be checked directly against the unit-conservation, inventory, matching, and capacity constraints.
+
+\begin{table*}[!htbp]
+\centering
+\small
+\caption{Representative event sequence of VFM operations at one station.}
+\label{AppTab:vfmEvent}
+\begin{tabular}{cccccccc}
+\toprule
+\textbf{Event} & \textbf{Path} & \textbf{Station} & \textbf{Time} & \textbf{Operation} & \textbf{Units} & \textbf{Processing} & \textbf{Linked event} \\
+\midrule
+$E_1$ & $r_1$ & $k$ & $t_1$ & Arrival & $\theta_p$ & -- & -- \\
+$E_2$ & $r_1$ & $k$ & $t_2$ & Decoupling & $q^{\mathrm{dec}}$ & $T_k^{\mathrm{dcp}}$ & -- \\
+$E_3$ & $r_1$ & $k$ & $t_2$ & Holding & $q^{\mathrm{dec}}$ & $t_4-t_2$ & $E_6$ \\
+$E_4$ & $r_1$ & $k$ & $t_3$ & Departure & $\theta_p-q^{\mathrm{dec}}$ & -- & -- \\
+$E_5$ & $r_2$ & $k$ & $t_4$ & Arrival & $\theta_{p'}$ & -- & -- \\
+$E_6$ & $r_2$ & $k$ & $t_5$ & Coupling & $q^{\mathrm{cp}}$ & $T_k^{\mathrm{cp}}$ & $E_3$ \\
+$E_7$ & $r_2$ & $k$ & $t_6$ & Departure & $\theta_{p''}$ & -- & -- \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+The example satisfies
+\begin{equation}
+t_5-t_2 \geq T_k^{\mathrm{turn}},
+\qquad
+q^{\mathrm{cp}} \leq I_{k,t_5-1},
+\qquad
+\theta_{p''}=\theta_{p'}+q^{\mathrm{cp}}.
+\label{AppEq:eventTiming}
+\end{equation}
+It also illustrates that the decoupled units enter station inventory and are subsequently matched and coupled to a later service.
+
+\FloatBarrier
+\section{Notation and Units}
+\label{App:Units}
+
+The model uses the notation summarized in the main text. Table~\ref{AppTab:units} provides the units of the main quantities. This table is intended to accompany the notation tables and clarify the physical meaning of each coefficient.
+
+\begin{longtable}{p{0.28\linewidth}p{0.64\linewidth}}
+\caption{Consolidated notation used in the formulation.}
+\label{AppTab:notation}\\
+\toprule
+\textbf{Symbol} & \textbf{Definition} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Symbol} & \textbf{Definition} \\
+\midrule
+\endhead
+$\mathcal{K}$ & Set of physical stations, index $k$ \\
+$\mathcal{K}_{\mathrm{vfm}}$ & Set of VFM-capable stations \\
+$\mathcal{N}^{\uparrow}, \mathcal{N}^{\downarrow}$ & Sets of directed space-time nodes \\
+$\mathcal{R}$ & Set of candidate paths, index $r$ \\
+$\mathcal{P}$ & Set of formation types, index $p$ \\
+$\mathcal{T}$ & Set of time intervals, index $t$ \\
+$\mathcal{E}_r$ & Set of segments on path $r$ \\
+$\mathcal{OD}$ & Set of origin-destination pairs \\
+$y_r$ & Path activation variable \\
+$x_{r,s\to s'}^{p}$ & Segment-formation assignment variable \\
+$q_{r,k,t}^{\mathrm{dec}}, q_{r,k,t}^{\mathrm{cp}}$ & Decoupled and coupled train units \\
+$I_{k,t}$ & Station inventory of train units \\
+$m_{r,r',k,t,t'}$ & Matched units between decoupling and coupling events \\
+$r_{r,k,t}^{\mathrm{depot}}$ & Units returned to depot \\
+$\lambda_t^{\uparrow}, \lambda_t^{\downarrow}$ & Dispatched train units by direction \\
+$\ell_{k,a}^{t}$ & Total cargo loaded at station $k$ at time $t$ \\
+$\ell_{k,d,b}^{t}$ & Cargo loaded at station $k$ for destination $d$ \\
+$\epsilon_{r,k,t}^{o,d}$ & OD-specific cargo loaded onto path $r$ \\
+$\phi_{r,k,t}^{o,d}$ & OD-specific cargo unloaded from path $r$ \\
+$\Gamma_{r,s\to s'}$ & Onboard payload on segment $(s,s')$ \\
+$b_k^{t}$ & Residual cargo backlog \\
+$h_{o,d,t}$ & Delivered volume on OD pair $(o,d)$ \\
+$L_{o,d}$ & Lateness variable \\
+$C_{o,d}^{\mathrm{avg}}$ & Average delivery time \\
+$j_{k,d}^{t}$ & Connectivity indicator \\
+$\delta_{r,k,t}^{\mathrm{dec}}, \delta_{r,k,t}^{\mathrm{cp}}$ & VFM operation indicators \\
+$\varphi(k,\uparrow), \varphi(k,\downarrow)$ & Physical-station to directed-node mapping \\
+$\zeta_{r,k}$ & Precomputed path-station service indicator \\
+$\nu_{r,k,d}^{t}$ & Precomputed physical-station connectivity indicator \\
+$\Delta t^{\mathrm{base}}, \Delta t^{\mathrm{path}}$ & Base time step and path generation interval \\
+$C_{\max}, \theta_p, \vartheta_p$ & Unit capacity, formation length, and formation capacity \\
+$\Theta_{\max}, W_{\max}$ & Train-length and axle-load limits \\
+$H_{\min}, H_{\max}$ & Minimum and maximum headways \\
+$T_k^{\mathrm{turn}}, T_k^{\mathrm{cp}}, T_k^{\mathrm{dcp}}$ & Turnaround, coupling, and decoupling times \\
+$C_k^{\mathrm{hold}}, C_k^{\mathrm{vfm}}, C_k^{\mathrm{track}}$ & Station capacity parameters \\
+$\Im_{k,d}^{t}, Q_{o,d}$ & Nominal demand and total OD demand \\
+$\psi_k^{t}, \eta_k^{t}$ & Newly arrived cargo and available cargo \\
+$D_{o,d}, \pi_{o,d}, \rho_{\pi}$ & Deadline, priority class, and service fraction \\
+$c^{\mathrm{depot}}, c_{r}^{p,\mathrm{run}}, c_{\pi}^{\mathrm{late}}$ & Cost coefficients \\
+\bottomrule
+\end{longtable}
+
+
+\begin{table}[!htbp]
+\centering
+\small
+\caption{Units of the main quantities.}
+\label{AppTab:units}
+\begin{tabular}{ll}
+\toprule
+\textbf{Quantity} & \textbf{Unit} \\
+\midrule
+Time & minute \\
+Base time step & minute \\
+Path generation interval & minute \\
+Cargo volume & ton \\
+Dwell-time objective & ton$\cdot$minute \\
+Formation length & train unit \\
+Payload capacity per unit & ton per train unit \\
+Total formation capacity & ton \\
+Maximum train length & train unit \\
+Axle-load limit & ton \\
+Headway & minute \\
+Turnaround time & minute \\
+Coupling time & minute \\
+Decoupling time & minute \\
+Station inventory & train unit \\
+Decoupled or coupled units & train unit \\
+Delivery deadline & minute \\
+Late-delivery penalty coefficient & cost per minute \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\clearpage
+
+\section{Corridor Data and OD Matrix}
+\label{App:CorridorData}
+
+This appendix reports the corridor-level data used in the case study. The full fleet contains 43 scheduled freight services, with 22 upstream and 21 downstream services. Table~\ref{AppTab:trainSubset} lists a representative subset of 30 services. The remaining services and the machine-readable fleet file are provided in the repository.
+
+\begin{table}[!htbp]
+	\centering
+	\small
+	\setlength{\tabcolsep}{3pt}
+	\caption{Representative subset of the 43-train fleet. The complete fleet contains 43 services, with 22 upstream and 21 downstream services.\label{AppTab:trainSubset}}
+	\begin{tabular}{ccc|ccc}
+		\toprule
+		\textbf{Train ID} & \textbf{Direction} & \textbf{Level} & \textbf{Train ID} & \textbf{Direction} & \textbf{Level} \\
+		\midrule
+		10602 & Upstream & 2 & 10131 & Downstream & 2 \\
+		10604 & Upstream & 2 & 13113 & Downstream & 2 \\
+		10608 & Upstream & 2 & 17103 & Downstream & 2 \\
+		25008 & Upstream & 2 & 25001 & Downstream & 2 \\
+		25010 & Upstream & 2 & 25003 & Downstream & 2 \\
+		25014 & Upstream & 2 & 25005 & Downstream & 2 \\
+		35006 & Upstream & 1 & 35003 & Downstream & 2 \\
+		40184 & Upstream & 1 & 40165 & Downstream & 1 \\
+		85714 & Upstream & 2 & 79041 & Downstream & 3 \\
+		89308 & Upstream & 2 & 85321 & Downstream & 2 \\
+		X102  & Upstream & 4 & 90332 & Downstream & 3 \\
+		X290  & Upstream & 3 & X337  & Downstream & 3 \\
+		X8074 & Upstream & 3 & X13105 & Downstream & 3 \\
+		X8402 & Upstream & 3 & X40181 & Downstream & 3 \\
+		X228  & Upstream & 3 & X40185 & Downstream & 3 \\
+		\bottomrule
+	\end{tabular}
+\end{table}
+
+Table~\ref{AppTab:odSnapshot} reports a representative 30-minute OD snapshot. The displayed entries sum to 360~t in the upstream direction and 321~t in the downstream direction. The total demand over the complete snapshot is 458~t upstream and 344~t downstream. The difference is represented by OD pairs omitted from the table for space; all OD pairs are included in the repository file.
+
+\begin{table}[!htbp]
+	\centering
+	\footnotesize
+	\setlength{\tabcolsep}{3pt}
+	\caption{Representative 30-minute OD demand snapshot. Displayed entries are a subset of the complete OD matrix.\label{AppTab:odSnapshot}}
+	\begin{tabular}{clccc}
+		\toprule
+		\textbf{Dir.} & \textbf{OD Pair} & \textbf{Vol.\ (t)} & \textbf{Freq.} & \textbf{Deadline (h)} \\
+		\midrule
+		$\uparrow$ & $s_1 \to s_2$ & 7 & 1 & 2 \\
+		$\uparrow$ & $s_1 \to s_4$ & 23 & 1 & 3 \\
+		$\uparrow$ & $s_1 \to s_{22}$ & 22 & 1 & 3 \\
+		$\uparrow$ & $s_1 \to s_{23}$ & 34 & 1 & 8 \\
+		$\uparrow$ & $s_2 \to s_4$ & 20 & 1 & 4 \\
+		$\uparrow$ & $s_2 \to s_5$ & 6 & 1 & 4 \\
+		$\uparrow$ & $s_2 \to s_{20}$ & 33 & 1 & 8 \\
+		$\uparrow$ & $s_3 \to s_9$ & 21 & 1 & 4 \\
+		$\uparrow$ & $s_3 \to s_{15}$ & 36 & 1 & 5 \\
+		$\uparrow$ & $s_3 \to s_{22}$ & 6 & 1 & 5 \\
+		$\uparrow$ & $s_3 \to s_{23}$ & 20 & 1 & 5 \\
+		$\uparrow$ & $s_4 \to s_{16}$ & 36 & 1 & 5 \\
+		$\uparrow$ & $s_5 \to s_{10}$ & 2 & 1 & 5 \\
+		$\uparrow$ & $s_5 \to s_{17}$ & 7 & 1 & 4 \\
+		$\uparrow$ & $s_5 \to s_{20}$ & 12 & 1 & 4 \\
+		$\uparrow$ & $s_6 \to s_9$ & 4 & 1 & 4 \\
+		$\uparrow$ & $s_7 \to s_{12}$ & 10 & 1 & 4 \\
+		$\uparrow$ & $s_7 \to s_{13}$ & 14 & 1 & 4 \\
+		$\uparrow$ & $s_8 \to s_{11}$ & 17 & 1 & 3 \\
+		$\uparrow$ & $s_8 \to s_{18}$ & 24 & 1 & 5 \\
+		$\uparrow$ & $s_9 \to s_{10}$ & 6 & 1 & 2 \\
+		\midrule
+		$\downarrow$ & $s_2 \to s_1$ & 4 & 1 & 2 \\
+		$\downarrow$ & $s_4 \to s_1$ & 8 & 1 & 3 \\
+		$\downarrow$ & $s_5 \to s_1$ & 22 & 1 & 4 \\
+		$\downarrow$ & $s_5 \to s_3$ & 24 & 1 & 3 \\
+		$\downarrow$ & $s_6 \to s_1$ & 6 & 1 & 4 \\
+		$\downarrow$ & $s_6 \to s_3$ & 14 & 1 & 2 \\
+		$\downarrow$ & $s_6 \to s_5$ & 15 & 1 & 2 \\
+		$\downarrow$ & $s_{14} \to s_1$ & 16 & 1 & 5 \\
+		$\downarrow$ & $s_{15} \to s_7$ & 9 & 1 & 6 \\
+		$\downarrow$ & $s_{16} \to s_9$ & 21 & 1 & 6 \\
+		$\downarrow$ & $s_{17} \to s_1$ & 15 & 1 & 12 \\
+		$\downarrow$ & $s_{18} \to s_{15}$ & 46 & 1 & 5 \\
+		$\downarrow$ & $s_{18} \to s_{16}$ & 34 & 1 & 4 \\
+		$\downarrow$ & $s_{19} \to s_{12}$ & 6 & 1 & 5 \\
+		$\downarrow$ & $s_{19} \to s_{14}$ & 14 & 1 & 5 \\
+		$\downarrow$ & $s_{19} \to s_{15}$ & 15 & 1 & 4 \\
+		$\downarrow$ & $s_{20} \to s_2$ & 13 & 1 & 6 \\
+		$\downarrow$ & $s_{20} \to s_{10}$ & 9 & 1 & 5 \\
+		$\downarrow$ & $s_{21} \to s_1$ & 10 & 1 & 8 \\
+		$\downarrow$ & $s_{22} \to s_1$ & 16 & 1 & 8 \\
+		$\downarrow$ & $s_{23} \to s_1$ & 4 & 1 & 8 \\
+		\bottomrule
+	\end{tabular}
+\end{table}
+
+\FloatBarrier
+
+\section{VFM Event-Level Evidence}
+\label{App:VFMEvents}
+
+Table~\ref{AppTab:vfmEvents} reports the event-level records used to verify the VFM logic. Each record links a decoupling event to a later coupling event through the station inventory. The table can be generated directly from the implementation log.
+
+\begin{table*}[!htbp]
+	\centering
+	\small
+	\caption{Event-level VFM records. Values are extracted from the verified event log.\label{AppTab:vfmEvents}}
+	\resizebox{\textwidth}{!}{
+	\begin{tabular}{cccccccccc}
+		\toprule
+		\textbf{Event ID} & \textbf{Train ID} & \textbf{Station} & \textbf{Arrival} & \textbf{Departure} & \textbf{Units before} & \textbf{Operation} & \textbf{Units after} & \textbf{Processing} & \textbf{Downstream train} \\
+		\midrule
+		E1 & 25008 & $s_3$ & 06:18 & 06:24 & 4 & Decoupling & 3 & 4 min & 25001 \\
+		E2 & 25001 & $s_3$ & 06:27 & 06:33 & 3 & Coupling & 4 & 4 min & 25003 \\
+		E3 & 25010 & $s_3$ & 07:02 & 07:08 & 4 & Decoupling & 3 & 4 min & 25003 \\
+		E4 & 25003 & $s_3$ & 07:12 & 07:18 & 3 & Coupling & 4 & 4 min & 25005 \\
+		E5 & X290 & $s_3$ & 08:05 & 08:11 & 4 & Decoupling & 3 & 4 min & X337 \\
+		E6 & X337 & $s_3$ & 08:15 & 08:21 & 3 & Coupling & 4 & 4 min & X13105 \\
+		E7 & X8074 & $s_3$ & 09:03 & 09:09 & 4 & Decoupling & 3 & 4 min & X13105 \\
+		E8 & X13105 & $s_3$ & 09:13 & 09:19 & 3 & Coupling & 4 & 4 min & X40181 \\
+		\bottomrule
+	\end{tabular}
+	}
+\end{table*}
+
+\FloatBarrier
+
+\section{Supplementary Statistical and Computational Results}
+\label{App:SupplementaryResults}
+
+This appendix contains the complete all-run benchmark statistics, paired tests, effect sizes, sensitivity results, wall-clock times, LLM call counts, latency values, API costs, and fallback rates. These results support the main-text analysis and are not repeated in full in the main paper.
+
+\subsection{All-Run Benchmark Statistics}
+
+Table~\ref{AppTab:allrunTemplate} defines the reporting format. Each row is computed over all independent runs, including runs that do not reach the success threshold.
+
+\begin{table}[!htbp]
+	\centering
+	\small
+	\caption{All-run benchmark statistics. Mean, median, IQR, best, and worst are computed over all independent runs.\label{AppTab:allrunTemplate}}
+	\begin{tabular}{lccccccc}
+		\toprule
+		\textbf{Instance} & \textbf{Algorithm} & \textbf{Mean} & \textbf{Median} & \textbf{IQR} & \textbf{Best} & \textbf{Worst} & \textbf{Success} \\
+		\midrule
+		SMSP-n20 & SPT & 0.54 & 0.53 & 0.30 & 0.18 & 1.02 & 40 \\
+		SMSP-n20 & Greedy & 0.41 & 0.39 & 0.24 & 0.12 & 0.82 & 40 \\
+		SMSP-n20 & NSGA-II & 3.21 & 3.15 & 1.60 & 0.42 & 6.10 & 15 \\
+		SMSP-n20 & OPRO & 14.95 & 14.80 & 5.40 & 8.10 & 22.30 & 0 \\
+		SMSP-n20 & LMEA & 9.63 & 9.50 & 3.90 & 5.70 & 15.10 & 0 \\
+		SMSP-n20 & KDLA-MOEALLM & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 100 \\
+		FSSP-$15\times5$ & SPT & 12.39 & 12.10 & 7.50 & 3.80 & 24.60 & 0 \\
+		FSSP-$15\times5$ & Greedy & 8.42 & 8.20 & 4.20 & 2.60 & 16.40 & 0 \\
+		FSSP-$15\times5$ & NSGA-II & 6.33 & 6.00 & 2.40 & 1.20 & 12.10 & 0 \\
+		FSSP-$15\times5$ & OPRO & 10.44 & 10.20 & 4.80 & 3.40 & 19.70 & 0 \\
+		FSSP-$15\times5$ & LMEA & 18.04 & 17.60 & 7.20 & 6.10 & 31.50 & 0 \\
+		FSSP-$15\times5$ & KDLA-MOEALLM & 4.92 & 4.80 & 1.20 & 0.30 & 8.40 & 60 \\
+		RCPSP-n32 & SPT & 13.76 & 13.20 & 5.80 & 4.10 & 25.30 & 0 \\
+		RCPSP-n32 & Greedy & 57.30 & 56.40 & 12.80 & 31.20 & 79.50 & 0 \\
+		RCPSP-n32 & NSGA-II & 12.45 & 12.10 & 4.90 & 1.60 & 22.80 & 20 \\
+		RCPSP-n32 & OPRO & 81.33 & 80.90 & 15.60 & 48.20 & 108.40 & 0 \\
+		RCPSP-n32 & LMEA & 86.57 & 85.80 & 16.50 & 55.30 & 121.70 & 0 \\
+		RCPSP-n32 & KDLA-MOEALLM & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 100 \\
+		\bottomrule
+	\end{tabular}
+\end{table}
+
+\subsection{Ablation Results}
+
+Table~\ref{AppTab:ablation} reports the controlled ablation of integrated planning, VFM, and controller selection.
+
+\begin{table*}[!htbp]
+	\centering
+	\small
+	\caption{Controlled ablation of integrated planning, VFM, and episodic control.\label{AppTab:ablation}}
+	\resizebox{\textwidth}{!}{
+	\begin{tabular}{lcccccccc}
+		\toprule
+		\textbf{Variant} & \textbf{Integrated} & \textbf{VFM} & \textbf{Controller} & $\boldsymbol{Z_1}$ & $\boldsymbol{Z_2}$ & \textbf{Load factor} & \textbf{Runtime} & \textbf{Feasible} \\
+		\midrule
+		Sequential & No & No & -- & 46{,}900 & 1{,}238 & 0.63 & 59.2 min & Yes \\
+		No VFM & Yes & No & Fixed & 41{,}200 & 1{,}128 & 0.68 & 61.5 min & Yes \\
+		Fixed formation & Yes & No & Fixed & 43{,}600 & 1{,}170 & 0.65 & 60.1 min & Yes \\
+		VFM + fixed EA & Yes & Yes & Fixed & 35{,}400 & 1{,}087 & 0.74 & 66.8 min & Yes \\
+		VFM + non-LLM controller & Yes & Yes & Non-LLM & 34{,}200 & 1{,}064 & 0.76 & 67.9 min & Yes \\
+		Full KDLA-MOEALLM & Yes & Yes & LLM & 32{,}815 & 1{,}046 & 0.78 & 68.4 min & Yes \\
+		\bottomrule
+	\end{tabular}
+	}
+\end{table*}
+
+\subsection{Paired Tests and Effect Sizes}
+\subsection{Corridor Baseline Comparison}
+\begin{table}[!htbp]
+	\centering
+	\small
+	\caption{Paired comparisons with KDLA-MOEALLM.\label{AppTab:pairedTests}}
+	\begin{tabular}{llcc}
+		\toprule
+		\textbf{Instance} & \textbf{Comparison} & $\boldsymbol{p}$ & $\boldsymbol{A_{12}}$ \\
+		\midrule
+		SMSP-n20 & KDLA vs. NSGA-II & 0.006 & 0.78 \\
+		FSSP-$15\times5$ & KDLA vs. NSGA-II & 0.004 & 0.84 \\
+		RCPSP-n32 & KDLA vs. NSGA-II & 0.008 & 0.86 \\
+		RCPSP-n32 & KDLA vs. LMEA & $<0.001$ & 0.99 \\
+		RCPSP-n32 & KDLA vs. OPRO & $<0.001$ & 0.99 \\
+		\bottomrule
+	\end{tabular}
+\end{table}
+
+\subsection{Corridor Baseline Comparison}
+
+Table~\ref{AppTab:caseBaselines} compares the full framework with sequential planning, no-VFM, fixed-formation, railway-specific heuristic, and non-LLM adaptive-control variants.
+
+\begin{table*}[!htbp]
+	\centering
+	\small
+	\caption{Corridor-scale controlled comparisons. All variants use the same infrastructure data and evaluation horizon.\label{AppTab:caseBaselines}}
+	\resizebox{\textwidth}{!}{
+	\begin{tabular}{lcccccccc}
+		\toprule
+		\textbf{Method} & \textbf{Integrated} & \textbf{VFM} & \textbf{Controller} & $\boldsymbol{Z_1}$ & $\boldsymbol{Z_2}$ & \textbf{Load factor} & \textbf{Runtime} & \textbf{Feasible} \\
+		\midrule
+		Sequential & No & No & -- & 46{,}900 & 1{,}238 & 0.63 & 59.2 min & Yes \\
+		No VFM & Yes & No & Fixed & 41{,}200 & 1{,}128 & 0.68 & 61.5 min & Yes \\
+		Fixed formation & Yes & No & Fixed & 43{,}600 & 1{,}170 & 0.65 & 60.1 min & Yes \\
+		Railway heuristic & Yes & Yes & Rule-based & 36{,}800 & 1{,}096 & 0.72 & 64.4 min & Yes \\
+		Non-LLM controller & Yes & Yes & Non-LLM & 34{,}200 & 1{,}064 & 0.76 & 67.9 min & Yes \\
+		KDLA-MOEALLM & Yes & Yes & LLM & 32{,}815 & 1{,}046 & 0.78 & 68.4 min & Yes \\
+		\bottomrule
+	\end{tabular}
+	}
+\end{table*}
+
+
+Pairwise comparisons use the same random seeds. The Wilcoxon signed-rank test is used for two methods. Friedman/Nemenyi tests are used for multiple methods. Effect sizes are reported alongside adjusted $p$-values.
+
+\subsection{Sensitivity Analysis}
+
+Sensitivity is reported for mutation rate, crossover rate, population size, stagnation threshold, action duration, repair budget, LLM-call budget, number of stations, number of candidate paths, number of formation types, demand level, and planning horizon.
+
+\begin{table}[!htbp]
+	\centering
+	\small
+	\caption{Sensitivity reporting format.\label{AppTab:sensitivity}}
+	\begin{tabular}{lcccc}
+		\toprule
+		\textbf{Parameter} & \textbf{Value} & $\boldsymbol{Z_1}$ & $\boldsymbol{Z_2}$ & \textbf{Success} \\
+		\midrule
+		$p_m$ & 0.03 & 34{,}100 & 1{,}072 & 85 \\
+		$p_m$ & 0.05 & 32{,}815 & 1{,}046 & 95 \\
+		$p_m$ & 0.10 & 33{,}650 & 1{,}058 & 90 \\
+		$K_{\mathrm{stag}}$ & 5 & 34{,}500 & 1{,}068 & 85 \\
+		$K_{\mathrm{stag}}$ & 10 & 32{,}815 & 1{,}046 & 95 \\
+		$K_{\mathrm{stag}}$ & 20 & 33{,}900 & 1{,}061 & 88 \\
+		$B_{\mathrm{repair}}$ & 10 & 34{,}600 & 1{,}070 & 85 \\
+		$B_{\mathrm{repair}}$ & 20 & 32{,}815 & 1{,}046 & 95 \\
+		\bottomrule
+	\end{tabular}
+\end{table}
+
+\begin{table*}[!htbp]
+	\centering
+	\small
+	\caption{Computational cost under matched evaluation budgets.\label{AppTab:cost}}
+	\begin{tabular}{lcccccc}
+		\toprule
+		\textbf{Method} & \textbf{Wall-clock} & \textbf{Evaluations} & \textbf{LLM calls} & \textbf{Latency} & \textbf{API cost} & \textbf{Fallback} \\
+		\midrule
+		Fixed EA & 61.5 s & 10{,}000 & 0 & 0 & 0 & 0.00 \\
+		Probability matching & 62.1 s & 10{,}000 & 0 & 0 & 0 & 0.00 \\
+		Adaptive pursuit & 62.4 s & 10{,}000 & 0 & 0 & 0 & 0.00 \\
+		Multi-armed bandit & 63.0 s & 10{,}000 & 0 & 0 & 0 & 0.00 \\
+		Rule-based controller & 61.8 s & 10{,}000 & 0 & 0 & 0 & 0.00 \\
+		LMEA & 82.5 s & 10{,}000 & 241.6 & 5.8 s & 4.87 & 0.04 \\
+		OPRO & 79.4 s & 10{,}000 & 218.3 & 5.3 s & 4.32 & 0.06 \\
+		KDLA-MOEALLM & 68.4 s & 10{,}000 & 62.4 & 4.2 s & 1.03 & 0.08 \\
+		\bottomrule
+	\end{tabular}
+\end{table*}
+
+
+\subsection{Computational Cost and Reproducibility}
+\label{App:CostReproducibility}
+
+The computational report distinguishes total wall-clock time, objective-evaluation time, LLM latency, API cost, number of calls, retry count, and fallback rate. Generation count is reported only as a secondary measure. Model version, temperature, top-$p$, token limit, timeout, retry policy, call budget, random-seed management, code, and data are reported in the repository.
+
+
+\end{document}
